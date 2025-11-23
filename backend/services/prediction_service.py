@@ -33,6 +33,7 @@ def predict_audio_bytes(audio_bytes: bytes):
         y, sr = sf.read(io.BytesIO(audio_bytes))
         if y.ndim > 1:
             y = y.mean(axis=1)
+        print("using soundfile")
     if sr != SAMPLE_RATE:
         print("resample")
         y = librosa.resample(y, orig_sr=sr, target_sr=SAMPLE_RATE)
