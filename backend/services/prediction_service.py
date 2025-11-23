@@ -11,11 +11,14 @@ def predict_audio_bytes(audio_bytes: bytes):
 
     Takes raw audio bytes, returns PD probability and friendly payload.
     """
+    print("Start load")
     y, sr = librosa.load(io.BytesIO(audio_bytes), sr=None, mono=True)
     if sr != SAMPLE_RATE:
+        print("resample")
         y = librosa.resample(y, orig_sr=sr, target_sr=SAMPLE_RATE)
         sr = SAMPLE_RATE
 
+    print("Get feats")
     feats = extract_features_from_signal(y, sr)
     feats_scaled = scaler.transform(feats.reshape(1, -1))
 
