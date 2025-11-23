@@ -27,6 +27,11 @@ let mediaRecorder = null;
 let audioChunks = [];
 let currentAudioBlob = null;
 let currentPredictionResult = null;
+let audioContext = null;
+let analyser = null;
+let dataArray = null;
+let animationFrameId = null;
+let audioStream = null;
 
 function toggleRecording() {
     if (!isRecording) {
@@ -38,9 +43,19 @@ function toggleRecording() {
 
 async function startRecording() {
     try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        mediaRecorder = new MediaRecorder(stream);
+        audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        mediaRecorder = new MediaRecorder(audioStream);
         audioChunks = [];
+
+        // Set up Web Audio API for visualization
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        analyser = audioContext.createAnalyser();
+        analyser.fftSize = 256; // Higher value = more bars, but more processing
+        const source = audioContext.createMediaStreamSource(audioStream);
+        source.connect(analyser);
+        
+        const bufferLength = analyser.frequencyBinCount;
+        dataArray = new Uint8Array(bufferLength);
 
         mediaRecorder.ondataavailable = (event) => {
             audioChunks.push(event.data);
@@ -60,6 +75,9 @@ async function startRecording() {
         document.getElementById('record-btn').classList.add('recording');
         document.getElementById('record-icon').textContent = '⏹';
         
+        // Start waveform visualization
+        visualizeWaveform();
+        
         recordingSeconds = 0;
         recordingTimer = setInterval(() => {
             recordingSeconds++;
@@ -74,7 +92,30 @@ async function startRecording() {
 function stopRecording() {
     if (mediaRecorder && isRecording) {
         mediaRecorder.stop();
-        mediaRecorder.stream.getTracks().forEach(track => track.stop());
+        
+        // Stop audio visualization
+        if (animationFrameId) {
+            cancelAnimationFrame(animationFrameId);
+            animationFrameId = null;
+        }
+        
+        // Stop audio stream and clean up audio context
+        if (audioStream) {
+            audioStream.getTracks().forEach(track => track.stop());
+            audioStream = null;
+        }
+        
+        if (audioContext && audioContext.state !== 'closed') {
+            audioContext.close();
+            audioContext = null;
+        }
+        
+        analyser = null;
+        dataArray = null;
+        
+        // Reset waveform bars to default state
+        resetWaveform();
+        
         isRecording = false;
         document.getElementById('record-btn').classList.remove('recording');
         document.getElementById('record-icon').textContent = '🎤';
@@ -99,6 +140,76 @@ function resetRecording() {
     if (recordingTimer) {
         clearInterval(recordingTimer);
     }
+    
+    // Stop any ongoing visualization
+    if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+        animationFrameId = null;
+    }
+    
+    // Clean up audio context if it exists
+    if (audioContext && audioContext.state !== 'closed') {
+        audioContext.close();
+        audioContext = null;
+    }
+    
+    if (audioStream) {
+        audioStream.getTracks().forEach(track => track.stop());
+        audioStream = null;
+    }
+    
+    analyser = null;
+    dataArray = null;
+    resetWaveform();
+}
+
+// Waveform Visualization
+function visualizeWaveform() {
+    if (!analyser || !dataArray) return;
+    
+    analyser.getByteFrequencyData(dataArray);
+    
+    const waveformBars = document.querySelectorAll('.waveform-bar');
+    const barCount = waveformBars.length;
+    
+    // Map frequency data to bars
+    // We'll use different frequency ranges for each bar to create a more interesting visualization
+    const step = Math.floor(dataArray.length / barCount);
+    
+    waveformBars.forEach((bar, index) => {
+        // Get average amplitude for this bar's frequency range
+        let sum = 0;
+        const start = index * step;
+        const end = Math.min(start + step, dataArray.length);
+        
+        for (let i = start; i < end; i++) {
+            sum += dataArray[i];
+        }
+        
+        const average = sum / (end - start);
+        // Normalize to 0-100% (dataArray values are 0-255)
+        const normalized = (average / 255) * 100;
+        
+        // Set minimum height and add some smoothing
+        const minHeight = 20;
+        const maxHeight = 200;
+        const height = Math.max(minHeight, minHeight + (normalized / 100) * (maxHeight - minHeight));
+        
+        bar.style.height = `${height}px`;
+        bar.style.opacity = Math.max(0.5, normalized / 100);
+    });
+    
+    if (isRecording) {
+        animationFrameId = requestAnimationFrame(visualizeWaveform);
+    }
+}
+
+function resetWaveform() {
+    const waveformBars = document.querySelectorAll('.waveform-bar');
+    waveformBars.forEach(bar => {
+        bar.style.height = '20px';
+        bar.style.opacity = '0.5';
+    });
 }
 
 function updateTimer() {
