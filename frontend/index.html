@@ -3,23 +3,115 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Frontend UI</title>
+    <title>Audisease</title>
 
     <link 
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" 
         rel="stylesheet">
-    <link rel="stylesheet" href="css/styles.css">
 </head>
 
 <body class="bg-light">
 
-<div class="container mt-5">
-    <h1 class="mb-3">Bootstrap Frontend Ready</h1>
-    <button class="btn btn-primary" onclick="loadUsers()">Test API Call</button>
+<nav class="navbar navbar-dark bg-primary">
+    <div class="container">
+        <span class="navbar-brand fw-bold">Audisease</span>
+    </div>
+</nav>
 
-    <ul class="list-group mt-3" id="userList"></ul>
+<div class="container mt-5">
+
+    <!-- Intro -->
+    <div class="text-center mb-4">
+        <h2 class="fw-bold">Check Your Vocal Health</h2>
+        <p class="text-muted">
+            Upload or record your voice to receive AI-powered insights.
+            <br>
+            <strong>Note:</strong> This tool does not diagnose medical conditions.
+        </p>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+
+            <!-- Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+
+                    <h5 class="fw-bold mb-3">1. Upload or Record Your Voice</h5>
+
+                    <div class="d-flex flex-column gap-3">
+
+                        <!-- Upload -->
+                        <div>
+                            <label class="form-label">Upload Audio File</label>
+                            <input type="file" class="form-control" accept="audio/*">
+                        </div>
+
+                        <!-- Record -->
+                        <div class="text-center">
+                            <button class="btn btn-outline-primary px-4">
+                                🎤 Start Recording
+                            </button>
+                        </div>
+
+                        <!-- Placeholder waveform -->
+                        <div class="bg-dark rounded p-4 text-center text-white mt-3">
+                            <small>Waveform preview appears here</small>
+                        </div>
+
+                        <!-- Analyze button -->
+                        <div class="text-center">
+                            <button class="btn btn-primary px-4 py-2">
+                                Analyze Voice
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Results -->
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="fw-bold mb-3">2. Insights</h5>
+
+                    <!-- Placeholder state -->
+                    <p class="text-muted">Results will appear here after analysis.</p>
+
+                    <!-- Example Results -->
+                    <div class="mt-4">
+                        <h6 class="fw-bold">Possible Voice Indicators</h6>
+
+                        <ul class="list-group">
+                            <li class="list-group-item">
+                                🔸 Slight vocal strain detected  
+                                <br><small class="text-muted">Could be due to speaking loudly, dehydration, or fatigue</small>
+                            </li>
+                            <li class="list-group-item">
+                                🔸 Reduced clarity in consonant sounds  
+                                <br><small class="text-muted">Often associated with congestion or mild throat irritation</small>
+                            </li>
+                            <li class="list-group-item">
+                                🔸 Irregular breathing patterns  
+                                <br><small class="text-muted">May reflect tiredness or stress</small>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="alert alert-warning mt-4">
+                        <strong>Reminder:</strong> This tool provides general voice-based insights 
+                        and is not a medical diagnosis.  
+                        Please consult a healthcare professional for any health concerns.
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+
 </div>
 
-<script src="js/api.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
