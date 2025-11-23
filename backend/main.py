@@ -1,14 +1,22 @@
 from fastapi import FastAPI
-from routers import users, items
+from fastapi.middleware.cors import CORSMiddleware
+from backend.routers.predict import router as predict_router
 
-app = FastAPI()
+app = FastAPI(
+    title="AuDisease Backend",
+    description="Backend API for Parkinson's voice screening.",
+    version="1.0.0",
+)
 
-# Register routers
-app.include_router(users.router, prefix="/api/users")
-# app.include_router(items.router, prefix="/api/items") - 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # tighten in production
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
+app.include_router(predict_router, prefix="/api")
 
 @app.get("/")
 def root():
-    return {"message": "FastAPI backend is running"}
-
+    return {"status": "ok", "message": "AuDisease backend running"}

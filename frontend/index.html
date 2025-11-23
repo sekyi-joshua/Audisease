@@ -2,116 +2,929 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Audisease</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Analysis - Parkinson's Screening</title>
+    
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Google Fonts - Dyslexia-friendly -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --secondary: #7c3aed;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --bg-gradient-start: #0f172a;
+            --bg-gradient-end: #1e293b;
+            --card-bg: #ffffff;
+            --text-primary: #0f172a;
+            --text-secondary: #64748b;
+            --border-radius: 24px;
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+            --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.12);
+            --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.16);
+        }
 
-    <link 
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" 
-        rel="stylesheet">
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-gradient-start: #0a0e1a;
+                --bg-gradient-end: #141824;
+                --card-bg: #1e293b;
+                --text-primary: #f1f5f9;
+                --text-secondary: #cbd5e1;
+                --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+                --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+                --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+            }
+
+            .instruction-card {
+                background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            }
+
+            .instruction-card h6 {
+                color: var(--text-primary);
+            }
+
+            .instruction-card li {
+                color: var(--text-secondary);
+            }
+
+            .timer {
+                color: var(--text-primary);
+            }
+
+            .metric-card {
+                background: rgba(30, 41, 59, 0.6);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+            }
+
+            .explanation-text {
+                background: rgba(30, 41, 59, 0.6);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+            }
+
+            .disclaimer {
+                background: rgba(251, 191, 36, 0.15);
+                border: 1px solid rgba(251, 191, 36, 0.3);
+            }
+        }
+
+        /* Light mode support (explicit) */
+        @media (prefers-color-scheme: light) {
+            :root {
+                --bg-gradient-start: #0f172a;
+                --bg-gradient-end: #1e293b;
+                --card-bg: #ffffff;
+                --text-primary: #0f172a;
+                --text-secondary: #64748b;
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+            min-height: 100vh;
+            color: var(--text-primary);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Screen Container */
+        .screen {
+            display: none;
+            min-height: 100vh;
+            padding: 2rem 1rem;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Container */
+        .container-custom {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Cards */
+        .card-modern {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            border: none;
+            box-shadow: var(--shadow-lg);
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            backdrop-filter: blur(10px);
+            color: var(--text-primary);
+        }
+
+        /* Buttons */
+        .btn-primary-modern {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            border: none;
+            border-radius: 16px;
+            padding: 1rem 2rem;
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: white;
+            box-shadow: var(--shadow-md);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            min-height: 56px;
+            width: 100%;
+            max-width: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin: 0 auto;
+        }
+
+        .btn-primary-modern:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-primary-modern:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary-modern {
+            background: transparent;
+            border: 2px solid var(--primary);
+            border-radius: 16px;
+            padding: 0.875rem 1.5rem;
+            font-weight: 600;
+            color: var(--primary);
+            transition: all 0.3s ease;
+            min-height: 48px;
+        }
+
+        .btn-secondary-modern:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* Hero Section */
+        .hero-icon {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 2rem;
+            position: relative;
+        }
+
+        .mic-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .mic-icon {
+            font-size: 4rem;
+            color: var(--primary);
+            animation: pulse 2s ease-in-out infinite;
+            z-index: 2;
+        }
+
+        .mic-aura {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(37, 99, 235, 0.2) 0%, transparent 70%);
+            animation: aura-pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+        }
+
+        @keyframes aura-pulse {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 0.6;
+            }
+            50% {
+                transform: scale(1.3);
+                opacity: 0.2;
+            }
+        }
+
+        .hero-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+
+        .hero-subtitle {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .trust-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.25rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.9rem;
+            margin-top: 1.5rem;
+            backdrop-filter: blur(10px);
+        }
+
+        /* Recording Screen */
+        .recording-card {
+            text-align: center;
+        }
+
+        .waveform-container {
+            width: 100%;
+            height: 200px;
+            margin: 2rem 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            padding: 1rem;
+        }
+
+        .waveform-bar {
+            width: 6px;
+            background: linear-gradient(180deg, var(--primary) 0%, var(--secondary) 100%);
+            border-radius: 3px;
+            animation: waveform 1.2s ease-in-out infinite;
+            min-height: 20px;
+        }
+
+        .waveform-bar:nth-child(1) { animation-delay: 0s; }
+        .waveform-bar:nth-child(2) { animation-delay: 0.1s; }
+        .waveform-bar:nth-child(3) { animation-delay: 0.2s; }
+        .waveform-bar:nth-child(4) { animation-delay: 0.3s; }
+        .waveform-bar:nth-child(5) { animation-delay: 0.4s; }
+        .waveform-bar:nth-child(6) { animation-delay: 0.5s; }
+        .waveform-bar:nth-child(7) { animation-delay: 0.6s; }
+        .waveform-bar:nth-child(8) { animation-delay: 0.7s; }
+        .waveform-bar:nth-child(9) { animation-delay: 0.8s; }
+        .waveform-bar:nth-child(10) { animation-delay: 0.9s; }
+        .waveform-bar:nth-child(11) { animation-delay: 1s; }
+        .waveform-bar:nth-child(12) { animation-delay: 1.1s; }
+
+        @keyframes waveform {
+            0%, 100% {
+                height: 20px;
+                opacity: 0.5;
+            }
+            50% {
+                height: 120px;
+                opacity: 1;
+            }
+        }
+
+        .instruction-card {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            text-align: left;
+        }
+
+        .instruction-card h6 {
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: var(--text-primary);
+        }
+
+        .instruction-card ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .instruction-card li {
+            padding: 0.5rem 0;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .instruction-card li:before {
+            content: "✓ ";
+            color: var(--success);
+            font-weight: 600;
+            margin-right: 0.5rem;
+        }
+
+        .record-button {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: none;
+            background: linear-gradient(135deg, var(--danger) 0%, #dc2626 100%);
+            color: white;
+            font-size: 2.5rem;
+            box-shadow: 0 8px 24px rgba(239, 68, 68, 0.4);
+            transition: all 0.3s ease;
+            margin: 2rem auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .record-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 12px 32px rgba(239, 68, 68, 0.5);
+        }
+
+        .record-button.recording {
+            animation: recording-pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes recording-pulse {
+            0%, 100% {
+                box-shadow: 0 8px 24px rgba(239, 68, 68, 0.4);
+            }
+            50% {
+                box-shadow: 0 8px 40px rgba(239, 68, 68, 0.8);
+            }
+        }
+
+        .timer {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 1rem 0;
+        }
+
+        .upload-alternative {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-input-wrapper input[type=file] {
+            position: absolute;
+            left: -9999px;
+        }
+
+        /* Processing Screen */
+        .processing-animation {
+            width: 120px;
+            height: 120px;
+            margin: 2rem auto;
+            position: relative;
+        }
+
+        .spinner-ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 4px solid transparent;
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .spinner-ring:nth-child(2) {
+            width: 80%;
+            height: 80%;
+            top: 10%;
+            left: 10%;
+            border-top-color: var(--secondary);
+            animation-duration: 1.5s;
+            animation-direction: reverse;
+        }
+
+        .spinner-ring:nth-child(3) {
+            width: 60%;
+            height: 60%;
+            top: 20%;
+            left: 20%;
+            border-top-color: var(--success);
+            animation-duration: 2s;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .processing-text {
+            text-align: center;
+            color: white;
+            margin-top: 2rem;
+        }
+
+        .processing-text h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .processing-steps {
+            list-style: none;
+            padding: 0;
+            margin: 1rem 0;
+        }
+
+        .processing-steps li {
+            padding: 0.75rem 0;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1rem;
+            animation: fadeInUp 0.5s ease-out;
+            animation-fill-mode: both;
+        }
+
+        .processing-steps li:nth-child(1) { animation-delay: 0.2s; }
+        .processing-steps li:nth-child(2) { animation-delay: 0.4s; }
+        .processing-steps li:nth-child(3) { animation-delay: 0.6s; }
+        .processing-steps li:nth-child(4) { animation-delay: 0.8s; }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            margin-top: 2rem;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+            border-radius: 4px;
+            animation: progress 3s ease-in-out infinite;
+        }
+
+        @keyframes progress {
+            0% {
+                width: 0%;
+            }
+            50% {
+                width: 70%;
+            }
+            100% {
+                width: 100%;
+            }
+        }
+
+        /* Results Screen */
+        .results-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .results-header h2 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 0.5rem;
+        }
+
+        .probability-gauge {
+            width: 280px;
+            height: 280px;
+            margin: 2rem auto;
+            position: relative;
+        }
+
+        .gauge-svg {
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
+        }
+
+        .gauge-background {
+            fill: none;
+            stroke: rgba(255, 255, 255, 0.1);
+            stroke-width: 20;
+        }
+
+        .gauge-fill {
+            fill: none;
+            stroke: url(#gauge-gradient);
+            stroke-width: 20;
+            stroke-linecap: round;
+            stroke-dasharray: 628;
+            stroke-dashoffset: 628;
+            animation: gauge-fill 2s ease-out forwards;
+            transition: stroke-dashoffset 0.5s ease;
+        }
+
+        @keyframes gauge-fill {
+            to {
+                stroke-dashoffset: var(--gauge-offset);
+            }
+        }
+
+        .gauge-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .gauge-percentage {
+            font-size: 3rem;
+            font-weight: 700;
+            color: white;
+            line-height: 1;
+        }
+
+        .gauge-label {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 0.5rem;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .metric-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 1.25rem;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .metric-label {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        .metric-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            margin-top: 0.75rem;
+            overflow: hidden;
+        }
+
+        .metric-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+            border-radius: 3px;
+            animation: metric-fill 1s ease-out forwards;
+        }
+
+        @keyframes metric-fill {
+            from {
+                width: 0%;
+            }
+        }
+
+        .explanation-text {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.6;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .disclaimer {
+            background: rgba(251, 191, 36, 0.2);
+            border: 1px solid rgba(251, 191, 36, 0.3);
+            border-radius: 12px;
+            padding: 1rem;
+            margin: 1.5rem 0;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        /* Responsive */
+        @media (max-width: 576px) {
+            .hero-title {
+                font-size: 1.5rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1rem;
+            }
+
+            .card-modern {
+                padding: 1.5rem;
+            }
+
+            .probability-gauge {
+                width: 240px;
+                height: 240px;
+            }
+
+            .gauge-percentage {
+                font-size: 2.5rem;
+            }
+
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Accessibility */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border-width: 0;
+        }
+
+        button:focus-visible,
+        input:focus-visible {
+            outline: 3px solid var(--primary);
+            outline-offset: 2px;
+        }
+
+        /* Smooth transitions */
+        .slide-in {
+            animation: slideIn 0.4s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+    </style>
 </head>
-
-<body class="bg-light">
-
-<nav class="navbar navbar-dark bg-primary">
-    <div class="container">
-        <span class="navbar-brand fw-bold">Audisease</span>
-    </div>
-</nav>
-
-<div class="container mt-5">
-
-    <!-- Intro -->
-    <div class="text-center mb-4">
-        <h2 class="fw-bold">Check Your Vocal Health</h2>
-        <p class="text-muted">
-            Upload or record your voice to receive AI-powered insights.
-            <br>
-            <strong>Note:</strong> This tool does not diagnose medical conditions.
-        </p>
-    </div>
-
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-
-            <!-- Card -->
-            <div class="card shadow-sm mb-4">
-                <div class="card-body">
-
-                    <h5 class="fw-bold mb-3">1. Upload or Record Your Voice</h5>
-
-                    <div class="d-flex flex-column gap-3">
-
-                        <!-- Upload -->
-                        <div>
-                            <label class="form-label">Upload Audio File</label>
-                            <input type="file" class="form-control" accept="audio/*">
-                        </div>
-
-                        <!-- Record -->
-                        <div class="text-center">
-                            <button class="btn btn-outline-primary px-4">
-                                🎤 Start Recording
-                            </button>
-                        </div>
-
-                        <!-- Placeholder waveform -->
-                        <div class="bg-dark rounded p-4 text-center text-white mt-3">
-                            <small>Waveform preview appears here</small>
-                        </div>
-
-                        <!-- Analyze button -->
-                        <div class="text-center">
-                            <button class="btn btn-primary px-4 py-2">
-                                Analyze Voice
-                            </button>
-                        </div>
+<body>
+    <!-- Landing Screen -->
+    <div class="screen active" id="landing-screen">
+        <div class="container-custom">
+            <div class="text-center" style="padding-top: 3rem;">
+                <div class="hero-icon">
+                    <div class="mic-aura"></div>
+                    <div class="mic-container">
+                        <div class="mic-icon">🎤</div>
                     </div>
+                        </div>
 
+                <h1 class="hero-title">Voice Analysis</h1>
+                <p class="hero-subtitle">
+                    Analyze your voice for early Parkinson's indicators.<br>
+                    Quick, private, and non-invasive.
+                </p>
+                
+                <button class="btn-primary-modern" onclick="showScreen('recording-screen')">
+                    <span>Start Voice Test</span>
+                    <span>→</span>
+                            </button>
+                
+                <div class="trust-badge">
+                    <span>🔒</span>
+                    <span>Audio never leaves your device</span>
+                </div>
+            </div>
+        </div>
+                        </div>
+
+    <!-- Recording Screen -->
+    <div class="screen" id="recording-screen">
+        <div class="container-custom">
+            <div class="card-modern recording-card">
+                <h2 class="mb-4" style="font-weight: 700; color: var(--text-primary);">Voice Recording</h2>
+                
+                <div class="waveform-container" id="waveform">
+                    <div class="waveform-bar"></div>
+                    <div class="waveform-bar"></div>
+                    <div class="waveform-bar"></div>
+                    <div class="waveform-bar"></div>
+                    <div class="waveform-bar"></div>
+                    <div class="waveform-bar"></div>
+                    <div class="waveform-bar"></div>
+                    <div class="waveform-bar"></div>
+                    <div class="waveform-bar"></div>
+                    <div class="waveform-bar"></div>
+                    <div class="waveform-bar"></div>
+                    <div class="waveform-bar"></div>
+                </div>
+                
+                <div class="instruction-card">
+                    <h6>What to say:</h6>
+                    <ul>
+                        <li>Count from 1 to 10 slowly</li>
+                        <li>Say "Ah" for 5 seconds</li>
+                        <li>Repeat a simple phrase like "The quick brown fox"</li>
+                    </ul>
+                </div>
+                
+                <div class="timer" id="timer">00:00</div>
+                
+                <button class="record-button" id="record-btn" onclick="toggleRecording()">
+                    <span id="record-icon">🎤</span>
+                </button>
+                
+                <div class="upload-alternative">
+                    <div class="file-input-wrapper">
+                        <button class="btn-secondary-modern" onclick="document.getElementById('file-input').click()">
+                            📁 Upload Audio File
+                        </button>
+                        <input type="file" id="file-input" accept="audio/*" style="display: none;" onchange="handleFileUpload(event)">
+                    </div>
+                </div>
+            </div>
+        </div>
+                        </div>
+
+    <!-- Processing Screen -->
+    <div class="screen" id="processing-screen">
+        <div class="container-custom">
+                        <div class="text-center">
+                <div class="processing-animation">
+                    <div class="spinner-ring"></div>
+                    <div class="spinner-ring"></div>
+                    <div class="spinner-ring"></div>
+                        </div>
+                
+                <div class="processing-text">
+                    <h3>Analyzing Voice Sample</h3>
+                    <ul class="processing-steps">
+                        <li>✓ Measuring tremor patterns</li>
+                        <li>✓ Analyzing pitch variation</li>
+                        <li>✓ Calculating voice stability</li>
+                        <li>✓ Processing noise ratio</li>
+                    </ul>
+                    
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-fill"></div>
+                    </div>
+                </div>
+            </div>
                 </div>
             </div>
 
-            <!-- Results -->
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h5 class="fw-bold mb-3">2. Insights</h5>
-
-                    <!-- Placeholder state -->
-                    <p class="text-muted">Results will appear here after analysis.</p>
-
-                    <!-- Example Results -->
-                    <div class="mt-4">
-                        <h6 class="fw-bold">Possible Voice Indicators</h6>
-
-                        <ul class="list-group">
-                            <li class="list-group-item">
-                                🔸 Slight vocal strain detected  
-                                <br><small class="text-muted">Could be due to speaking loudly, dehydration, or fatigue</small>
-                            </li>
-                            <li class="list-group-item">
-                                🔸 Reduced clarity in consonant sounds  
-                                <br><small class="text-muted">Often associated with congestion or mild throat irritation</small>
-                            </li>
-                            <li class="list-group-item">
-                                🔸 Irregular breathing patterns  
-                                <br><small class="text-muted">May reflect tiredness or stress</small>
-                            </li>
-                        </ul>
+    <!-- Results Screen -->
+    <div class="screen" id="results-screen">
+        <div class="container-custom">
+            <div class="results-header">
+                <h2>Analysis Complete</h2>
+            </div>
+            
+            <div class="card-modern">
+                <div class="probability-gauge" id="probability-gauge">
+                    <svg class="gauge-svg" viewBox="0 0 220 220">
+                        <defs>
+                            <linearGradient id="gauge-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" style="stop-color:#2563eb;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#7c3aed;stop-opacity:1" />
+                            </linearGradient>
+                        </defs>
+                        <circle class="gauge-background" cx="110" cy="110" r="100"></circle>
+                        <circle class="gauge-fill" cx="110" cy="110" r="100" id="gauge-circle"></circle>
+                    </svg>
+                    <div class="gauge-center">
+                        <div class="gauge-percentage" id="probability-percentage">12%</div>
+                        <div class="gauge-label">Probability</div>
+                    </div>
+                </div>
+                
+                <div class="explanation-text">
+                    <strong>What this means:</strong><br>
+                    This percentage represents the likelihood of Parkinson's-related voice characteristics based on your sample. 
+                    This is not a medical diagnosis. Please consult a healthcare professional for any health concerns.
+                </div>
+                
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-label">Voice Stability</div>
+                        <div class="metric-value">87%</div>
+                        <div class="metric-bar">
+                            <div class="metric-bar-fill" style="width: 87%; animation-delay: 0.2s;"></div>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Pitch Variation</div>
+                        <div class="metric-value">23%</div>
+                        <div class="metric-bar">
+                            <div class="metric-bar-fill" style="width: 23%; animation-delay: 0.4s;"></div>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Tremor</div>
+                        <div class="metric-value">8%</div>
+                        <div class="metric-bar">
+                            <div class="metric-bar-fill" style="width: 8%; animation-delay: 0.6s;"></div>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Noise Ratio</div>
+                        <div class="metric-value">15%</div>
+                        <div class="metric-bar">
+                            <div class="metric-bar-fill" style="width: 15%; animation-delay: 0.8s;"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="disclaimer">
+                    <strong>⚠️ Important:</strong> This tool provides general voice-based insights and is not a medical diagnosis. 
+                    Please consult a healthcare professional for any health concerns.
                     </div>
 
-                    <div class="alert alert-warning mt-4">
-                        <strong>Reminder:</strong> This tool provides general voice-based insights 
-                        and is not a medical diagnosis.  
-                        Please consult a healthcare professional for any health concerns.
-                    </div>
-
+                <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                    <button class="btn-secondary-modern" style="flex: 1;" onclick="showScreen('recording-screen')">
+                        Retake Test
+                    </button>
+                    <button class="btn-primary-modern" style="flex: 1; max-width: none;" onclick="saveResult()">
+                        Save Result
+                    </button>
                 </div>
             </div>
-
         </div>
     </div>
 
-</div>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Application JS -->
+    <script src="js/api.js"></script>
+    <script src="js/index.js"></script>
 </body>
 </html>

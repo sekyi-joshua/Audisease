@@ -1,22 +1,29 @@
-// TODO: Connect to FastAPI 
-const API_BASE = "http://localhost:8000/api";  // Change if needed
+const API_BASE = "http://localhost:8000/api";
 
-async function loadUsers() {
+/**
+ * Upload an audio file to the FastAPI predict endpoint
+ * @param {File|Blob} audioFile - The audio file to upload
+ * @returns {Promise<Object>} The prediction result from the API
+ */
+async function predictAudioFile(audioFile) {
     try {
-        const res = await fetch(`${API_BASE}/users/`);
-        const data = await res.json();
+        const formData = new FormData();
+        formData.append('file', audioFile, 'audio.wav');
 
-        const userList = document.getElementById("userList");
-        userList.innerHTML = "";
-
-        data.forEach(user => {
-            const li = document.createElement("li");
-            li.className = "list-group-item";
-            li.textContent = `${user.id}: ${user.name}`;
-            userList.appendChild(li);
+        const response = await fetch(`${API_BASE}/predict`, {
+            method: 'POST',
+            body: formData
         });
-    } catch (err) {
-        alert("API request failed. Check backend is running.");
-        console.error(err);
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ detail: 'Unknown error' }));
+            throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Error predicting audio:', error);
+        throw error;
     }
 }
